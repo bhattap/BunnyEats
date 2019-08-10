@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "653711326979",
+    "firebase_url": "https://bunny-eats.firebaseio.com",
+    "project_id": "bunny-eats",
+    "storage_bucket": "bunny-eats.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653711326979:android:12f90eaf6b116942",
+        "android_client_info": {
+          "package_name": "com.example.bunnyeats"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "653711326979-1u29fk17rd7bvacttmu1ogotq48a46dg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDPX3I9AFmIcbUWWQMmESaaM5rJRRM-xs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "653711326979-1u29fk17rd7bvacttmu1ogotq48a46dg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
