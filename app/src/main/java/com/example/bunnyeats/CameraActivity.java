@@ -159,6 +159,7 @@ public class CameraActivity extends AppCompatActivity implements LifecycleOwner 
 
                         FirebaseVisionOnDeviceAutoMLImageLabelerOptions labelerOptions =
                                 new FirebaseVisionOnDeviceAutoMLImageLabelerOptions.Builder()
+                                        .setConfidenceThreshold(0)
                                         .setLocalModelName("local_model")
                                         .build();
                         FirebaseVisionImageLabeler labeler =
