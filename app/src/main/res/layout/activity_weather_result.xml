@@ -31,7 +31,6 @@
         android:padding="13dp"
         android:textColor="#FFFFFF"
         android:textSize="15sp"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imageLayout" />

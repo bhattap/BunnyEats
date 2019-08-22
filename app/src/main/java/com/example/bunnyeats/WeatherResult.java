@@ -11,9 +11,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -48,8 +45,9 @@ public class WeatherResult extends AppCompatActivity {
     private String apiKey =
             "zg-HdaMM_6ULbi8bL_xSBJLrFPUI7FxgMQpPIL25MS3niImiOYxPwBh-VPvQK2MvYlSZUVsnf1HqCrsQ86C8vblUKjZ2LrI7f0CJ0ISjkUZj4-3Y9v9u21jFvSxaXXYx";
 
-    private ArrayList<Business> restaurantList;
-    private ArrayAdapter<ArrayList<Business>> arrayAdapter;
+    private ArrayList<Business> businesses;
+    private ArrayList<YelpItem> allRestaurants;
+    private CustomAdapter customAdapter;
     private ListView listView;
 
     @Override
@@ -72,25 +70,20 @@ public class WeatherResult extends AppCompatActivity {
         if (weatherName.equals("sunny")) {
             imageLayout.setBackgroundResource(R.drawable.sunny);
             resultTextView.setText("The weather looks nice and warm today.");
-            resultTextView.setVisibility(View.VISIBLE);
         } else if (weatherName.equals("cloudy")) {
             imageLayout.setBackgroundResource(R.drawable.cloudy);
             resultTextView.setText("When it's cloudy, a bowl of ramen is the way to go");
-            resultTextView.setVisibility(View.VISIBLE);
         } else if (weatherName.equals("snowy")) {
             imageLayout.setBackgroundResource(R.drawable.snowy);
             resultTextView.setText("It looks like it's freezing outside");
-            resultTextView.setVisibility(View.VISIBLE);
         } else if (weatherName.equals("rainy")) {
             imageLayout.setBackgroundResource(R.drawable.rainy);
             resultTextView.setText("Have a bowl of soup while taking shelter from the rain");
-            resultTextView.setVisibility(View.VISIBLE);
         } else {
             //this is the default!! our model couldnt detect anything
             //send a simple message about food you can enjoy in all weather
             imageLayout.setBackgroundResource(R.color.colorPrimary);
-            resultTextView.setText("We weren't able to classify the weather using this picture, but here are some places serving Thai, which is delicious in all kids of weather");
-            resultTextView.setVisibility(View.VISIBLE);
+            resultTextView.setText("We weren't able to classify the weather using this picture, but here are some places serving Thai, which is delicious in all kids of weather");;
         }
     }
 
@@ -136,8 +129,6 @@ public class WeatherResult extends AppCompatActivity {
     }
 
     private void getList(double longitude, double latitude) {
-        Toast.makeText(WeatherResult.this, longitude + ", " + latitude, Toast.LENGTH_LONG).show();
-
         //Use Yelp Fusion API V3
 
         YelpFusionApiFactory apiFactory = new YelpFusionApiFactory();
@@ -156,17 +147,35 @@ public class WeatherResult extends AppCompatActivity {
                     SearchResponse searchResponse = response.body();
                     call.cancel();
 
-                    restaurantList = searchResponse.getBusinesses();
+                    //Place all the business objects in an ArrayList
+                    businesses = searchResponse.getBusinesses();
+                    //Create a YelpItem for each business
+                    allRestaurants = new ArrayList<>();
+                    int i = 0;
+                    for (Business business:businesses){
+                        //i is the counter for the restaurants in the list
+                        i++;
+                        //add a new Yelp Item for each restaurant
+                        //include name, rating, and address
+                        //the business address == need the substring method to remove the [] that are a
+                            //result of the toString method
+                        allRestaurants.add(new YelpItem(i+". "+business.getName(),
+                                business.getRating()+" ★ (" +
+                                        business.getReviewCount() + " reviews)",
+                                business.getLocation().getDisplayAddress().toString().substring(1,business.getLocation().getDisplayAddress().toString().length()-1)));
+                    }
                     updateListView();
                 }
 
                 @Override
                 public void onFailure(Call<SearchResponse> call, Throwable t) {
                     // HTTP error happened, do something to handle it.
-                    Toast.makeText(WeatherResult.this, "Something went wrong. Please try again", Toast.LENGTH_LONG).show();
+                    Toast.makeText(WeatherResult.this,
+                            "Something went wrong. Please try again", Toast.LENGTH_LONG).show();
                 }
             };
 
+            //asynchronously search so as to not crash the app
             call.enqueue(callback);
 
         } catch (IOException e) {
@@ -175,5 +184,8 @@ public class WeatherResult extends AppCompatActivity {
     }
 
     private void updateListView() {
+        customAdapter = new CustomAdapter(allRestaurants, WeatherResult.this);
+        listView = findViewById(R.id.listView);
+        listView.setAdapter(customAdapter);
     }
 }
