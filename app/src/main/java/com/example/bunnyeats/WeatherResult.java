@@ -40,13 +40,11 @@ public class WeatherResult extends AppCompatActivity {
     private RelativeLayout imageLayout;
     private TextView resultTextView;
 
-    /*
-    The following ArrayLists hold HashMaps of curated food items for each of the weather labels.
-    */
-    private ArrayList<Map<String, String>> sunnyFoodAndSayingPairs;
-    private ArrayList<Map<String, String>> cloudyFoodAndSayingPairs;
-    private ArrayList<Map<String, String>> snowyFoodAndSayingPairs;
-    private ArrayList<Map<String, String>> rainyFoodAndSayingPairs;
+    //The following ArrayLists hold HashMaps of curated food items for each of the weather labels.
+    private ArrayList<String> sunnyFoods;
+    private ArrayList<String> cloudyFoods;
+    private ArrayList<String> snowyFoods;
+    private ArrayList<String> rainyFoods;
 
     private int randomIndex;
     private String foodTerm;
@@ -74,83 +72,51 @@ public class WeatherResult extends AppCompatActivity {
         weatherName = receivedIntent.getStringExtra("weatherName");
         imageLayout = findViewById(R.id.imageLayout);
         resultTextView = findViewById(R.id.resultTextView);
-        randomIndex = 0;
-        foodTerm = "";
-        createFoodAndSayingPairs();
+
+        getFoodAndSayingPairs();
         setBackground();
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         permissionForLocation();
     }
 
-    private void createFoodAndSayingPairs() {
-        sunnyFoodAndSayingPairs = new ArrayList<>();
-        cloudyFoodAndSayingPairs = new ArrayList<>();
-        snowyFoodAndSayingPairs = new ArrayList<>();
-        rainyFoodAndSayingPairs = new ArrayList<>();
-
-        sunnyFoodAndSayingPairs.add(createHashMap("bbq",
-                "Enjoy the weather with your friends and some good ol' barbecue!"));
-        sunnyFoodAndSayingPairs.add(createHashMap("burger",
-                "On a sunny and warm day, pick a place serving delicious burgers."));
-        sunnyFoodAndSayingPairs.add(createHashMap("friend chicken",
-                "Enjoy the sunny weather at one of these delicious fried chicken places."));
-        cloudyFoodAndSayingPairs.add(createHashMap("pasta",
-                "Head to one of these places serving your favorite type of pasta on a cloudy day."));
-        cloudyFoodAndSayingPairs.add(createHashMap("coffee",
-                "Is there a better way to spend a cloudy afternoon than doing some work with great coffee?"));
-        cloudyFoodAndSayingPairs.add(createHashMap("sushi",
-                "Eat fresh seafood on a cloudy day. Head to any one of these sushi places."));
-        snowyFoodAndSayingPairs.add(createHashMap("szechuan",
-                "Spicy food is perfect on a snowy day. Go grab some Szechuan cuisine."));
-        snowyFoodAndSayingPairs.add(createHashMap("hot pot",
-                "Share some hot pot with a group of friends in the chilly weather."));
-        snowyFoodAndSayingPairs.add(createHashMap("pho",
-                "Enjoy a warm and delicious bowl of pho by yourself while it snows outside."));
-        rainyFoodAndSayingPairs.add(createHashMap("ramen",
-                "Hey you! Did you know that ramen goes really well with a rainy day? The more you know!"));
-        rainyFoodAndSayingPairs.add(createHashMap("soup",
-                "A piping bowl of soup is best enjoyed on this rainy day."));
-        rainyFoodAndSayingPairs.add(createHashMap("donut",
-                "Head into one of these places to escape the rain and enjoy a sweet donut."));
-
-    }
-
-    private HashMap createHashMap(String food, String saying) {
-        HashMap<String, String> hashmap = new HashMap<>();
-        hashmap.put("food", food);
-        hashmap.put("saying", saying);
-        return hashmap;
+    /*
+    This method will get a list of foods for each of the current weather labels we have.
+    This is our curated list and we will use these foods to display appropriate Yelp results.
+    The keySet method returns a Set of all the keys in a HashMap
+    (in our case, this is a set of all food terms).
+     */
+    private void getFoodAndSayingPairs() {
+        sunnyFoods = new ArrayList<>(new SunnyWeatherFood().getSunnyFoodAndSayingPairs().keySet());
+        cloudyFoods = new ArrayList<>(new CloudyWeatherFood().getSnowyFoodAndSayingPairs().keySet());
+        snowyFoods = new ArrayList<>(new SnowyWeatherFood().getSnowyFoodAndSayingPairs().keySet());
+        rainyFoods = new ArrayList<>(new RainyWeatherFood().getRainyFoodAndSayingPairs().keySet());
     }
 
     private void setBackground() {
-        //Randomly select a number which will be used to grab one of the
-        // special foods in the label our model returned
         Random random = new Random();
-        //Get a number from 0 to 2, which will be the index of our chosen saying
-        randomIndex = random.nextInt(3);
+        foodTerm = "";
 
         if (weatherName.equals("sunny")) {
             imageLayout.setBackgroundResource(R.drawable.sunny);
-            //set the displayed text to be the "saying" associated with HashMap located in the ArrayList at the random index
-            resultTextView.setText(sunnyFoodAndSayingPairs.get(randomIndex).get("saying"));
-            //set the food term (to be searched) to be the "food" associated with HashMap located in the ArrayList at the random index
-            foodTerm = sunnyFoodAndSayingPairs.get(randomIndex).get("food");
+            //set the food term (to be searched) located in the ArrayList at a random index
+            foodTerm = sunnyFoods.get(random.nextInt(sunnyFoods.size()));
+            //set the displayed text to be the "saying" associated with our food term
+            resultTextView.setText(new SunnyWeatherFood().getSunnyFoodAndSayingPairs().get(foodTerm));
         } else if (weatherName.equals("cloudy")) {
             imageLayout.setBackgroundResource(R.drawable.cloudy);
-            resultTextView.setText(cloudyFoodAndSayingPairs.get(randomIndex).get("saying"));
-            foodTerm = cloudyFoodAndSayingPairs.get(randomIndex).get("food");
+            foodTerm = cloudyFoods.get(random.nextInt(cloudyFoods.size()));
+            resultTextView.setText(new CloudyWeatherFood().getSnowyFoodAndSayingPairs().get(foodTerm));
         } else if (weatherName.equals("snowy")) {
             imageLayout.setBackgroundResource(R.drawable.snowy);
-            resultTextView.setText(snowyFoodAndSayingPairs.get(randomIndex).get("saying"));
-            foodTerm = snowyFoodAndSayingPairs.get(randomIndex).get("food");
+            foodTerm = snowyFoods.get(random.nextInt(snowyFoods.size()));
+            resultTextView.setText(new SnowyWeatherFood().getSnowyFoodAndSayingPairs().get(foodTerm));
         } else if (weatherName.equals("rainy")) {
             imageLayout.setBackgroundResource(R.drawable.rainy);
-            resultTextView.setText(rainyFoodAndSayingPairs.get(randomIndex).get("saying"));
-            foodTerm = rainyFoodAndSayingPairs.get(randomIndex).get("food");
+            foodTerm = rainyFoods.get(random.nextInt(rainyFoods.size()));
+            resultTextView.setText(new RainyWeatherFood().getRainyFoodAndSayingPairs().get(foodTerm));
         } else {
-            //this is the default. our model couldnt detect anything
-            //send a simple message about food you can enjoy in all weather
+            //Have a default for if the model does not label the image
             imageLayout.setBackgroundResource(R.drawable.landing);
             resultTextView.setText("We weren't able to classify the weather using this picture, but here are some places serving Thai, which is delicious in all kids of weather");
             foodTerm = "Thai";

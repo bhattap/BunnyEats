@@ -166,7 +166,10 @@ public class CameraActivity extends AppCompatActivity implements LifecycleOwner 
                                 null;
                         try {
                             labeler = FirebaseVision.getInstance().getOnDeviceAutoMLImageLabeler(labelerOptions);
-                            labeler.processImage(image)
+                        } catch (FirebaseMLException e) {
+                            e.printStackTrace();
+                        }
+                        labeler.processImage(image)
                                     .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
                                         @Override
                                         public void onSuccess(List<FirebaseVisionImageLabel> labels) {
@@ -187,9 +190,6 @@ public class CameraActivity extends AppCompatActivity implements LifecycleOwner 
                                             // ...
                                         }
                                     });
-                        } catch (FirebaseMLException e) {
-                            e.printStackTrace();
-                        }
                     }
                 });
 
