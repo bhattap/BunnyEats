@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -46,7 +47,6 @@ public class WeatherResult extends AppCompatActivity {
     private ArrayList<String> snowyFoods;
     private ArrayList<String> rainyFoods;
 
-    private int randomIndex;
     private String foodTerm;
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -62,10 +62,17 @@ public class WeatherResult extends AppCompatActivity {
     private CustomAdapter customAdapter;
     private ListView listView;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_result);
+
+        //Show progress dialog while setting up results
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
         Intent receivedIntent = getIntent();
         weatherName = "";
@@ -207,10 +214,15 @@ public class WeatherResult extends AppCompatActivity {
                                 business.getLocation().getDisplayAddress().toString().substring(1,business.getLocation().getDisplayAddress().toString().length()-1)));
                     }
                     updateListView();
+                    //dismiss progress dialog
+                    progressDialog.dismiss();
                 }
 
                 @Override
                 public void onFailure(Call<SearchResponse> call, Throwable t) {
+                    //dismiss progress dialog
+                    progressDialog.dismiss();
+
                     // HTTP error happened, do something to handle it.
                     Toast.makeText(WeatherResult.this,
                             "Something went wrong. Please try again", Toast.LENGTH_LONG).show();
